@@ -32,19 +32,25 @@ var data = [
 var go = {config: {}};
 var edit = go.config.edit = {
     stage: {},
-    job: {}
+    job: {},
+    component: {},
+    control: {}
 };
 
 edit.Pipelines = Array;
-edit.Pipelines.prototype.
 
 edit.Stage = function(name, jobs) {
     this.name = m.prop(name);
     this.jobs = m.prop(jobs);
 }
 
-edit.Job = function(name){
+edit.Job = function(name, tasks){
     this.name = m.prop(name);
+    this.tasks = m.prop(tasks);
+}
+
+edit.Task = function(command) {
+    this.command = m.prop(command);
 }
 
 edit.vm = {
@@ -52,7 +58,9 @@ edit.vm = {
         var pipelines = this.pipelines = new edit.Pipelines();
         data.map(function(stage){
             pipelines.push(new edit.Stage(stage.name, stage.jobs.map(function(job){
-                return new edit.Job(job.name);
+                return new edit.Job(job.name, job.tasks.map(function(task){
+                    return new edit.Task(task);
+                }));
             })));
         });
     }
@@ -62,42 +70,31 @@ edit.controller = function(){
     go.config.edit.vm.init(data);
 };
 
+edit.control.binds =  function(prop) {
+    return {oninput: m.withAttr("value", prop), value: prop()}
+};
+
+edit.component.task = function(task){
+    return m("div.task", m("h3", m("div", "task"), m("input", edit.control.binds(task.command))));
+};
+
+edit.component.job = function(job){
+    return m("div.job", 
+             m("h2", m("div", "Job"),
+               m("span",
+                 m("input", edit.control.binds(job.name))),
+               job.tasks().map(edit.component.task)));
+};
+
+edit.component.stage = function(stage){
+    return m("div.stage",
+             m("h1", m("div", "Stage"), m("input", edit.control.binds(stage.name))),
+             stage.jobs().map(edit.component.job));
+    
+}
+
 edit.view = function(){
-    return m("ul", edit.vm.pipelines.map(function(stage){
-        return m("li",
-                 m("a", {"href": "#/edit/stage/" + stage.name()}, stage.name()),
-                 m("ul", stage.jobs().map(function(job){
-                     return m("li",
-                              m("a", {"href": "#/edit/job/" + stage.name() + "/" + job.name() }, job.name()));
-                 })))
-    }));
-}
-
-edit.stage.controller = function(){
-    var name = m.route.param("id");
-    return {
-        "stage" : edit.vm.pipelines.find(function(stage){
-            return stage.name() == name;
-        })
-    };
-}
-
-edit.stage.view = function(controller) {
-    return m("div", controller.stage.name());
-}
-
-edit.job.controller = function(){
-    return { "id" : m.route.param("id") };
-}
-
-edit.job.view = function(controller) {
-    return m("div", controller.id);
+    return m("div.stages", edit.vm.pipelines.map(edit.component.stage));
 }
 
 m.render(document.getElementById('pipeline'), edit);
-
-m.route.mode = "hash";
-m.route(document.getElementById('editArea'),"/edit/stage/Build", {
-    "/edit/stage/:id" : edit.stage,
-    "/edit/job/:id..." : edit.job
-});
