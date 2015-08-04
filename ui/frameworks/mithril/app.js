@@ -33,6 +33,7 @@ var go = {config: {}};
 var edit = go.config.edit = {};
 
 edit.Pipeline = Array;
+
 edit.Stage = function(name, jobs) {
     this.name = m.prop(name);
     this.jobs = m.prop(jobs);
@@ -58,10 +59,10 @@ edit.controller = function(){
 };
 
 edit.view = function(){
-    return m("div", go.config.edit.vm.pipeline.map(function(stage){
-        return m("div", stage.name(), stage.jobs().map(function(job){
-            return m("div", "->", job.name());
-        }))
+    return m("ul", edit.vm.pipeline.map(function(stage){
+        return m("li", stage.name(), m("ul", stage.jobs().map(function(job){
+            return m("li", job.name());
+        })))
     }));
 }
 
