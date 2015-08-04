@@ -22,7 +22,7 @@ $(function(){
 
   var StageList = React.createClass({
     getInitialState: function() {
-      return {data: []};
+      return {data: {}};
     },
     componentDidMount: function() {
       var stageList = this;
@@ -40,37 +40,52 @@ $(function(){
       });
     },
     addTaskTo: function(stage, job, taskCommand){
-      var stageIndex = _.findIndex(this.state.data, {name: stage.props.name});
+      var stageIndex = this.indexOfStage(stage);
       var jobIndex = _.findIndex(stage.props.jobs, {name: job.props.name});
 
-      var newData = React.addons.update(this.state.data, makeProp(
-        stageIndex, {
-          jobs: makeProp(jobIndex, {
-            tasks: {
-              $push: [taskCommand]
+      var newData = React.addons.update(this.state.data, {
+        pipeline: {
+          stages: makeProp(
+            stageIndex, {
+              jobs: makeProp(jobIndex, {
+                tasks: {
+                  $push: [taskCommand]
+                }
+              })
             }
-          })
+          )
         }
-      ));
+      });
 
       this.setState({data: newData});
     },
+    indexOfStage: function (stage){
+      return _.findIndex(this.state.data.pipeline.stages, {name: stage.props.name});
+    },
     insertJob: function(stage, afterJob){
-      var stageIndex = _.findIndex(this.state.data, {name: stage.props.name});
+      var stageIndex = this.indexOfStage(stage);
       var jobIndex = _.findIndex(stage.props.jobs, {name: afterJob.props.name});
 
-      var newData = React.addons.update(this.state.data, makeProp(
-        stageIndex, {
-          jobs: {
-            $splice: [[jobIndex+1, 0, createNewJob()]]
-          }
+      var newData = React.addons.update(this.state.data, {
+        pipeline: {
+          stages: makeProp(
+            stageIndex, {
+              jobs: {
+                $splice: [[jobIndex+1, 0, createNewJob()]]
+              }
+            }
+          )
         }
-      ));
+      });
 
       this.setState({data: newData});
     },
     insertStage: function() {
-      var newData = React.addons.update(this.state.data, {$push: [createNewStage()]});
+      var newData = React.addons.update(this.state.data, {
+        pipeline: {
+          stages: {$push: [createNewStage()]}
+        }
+      });
       this.setState({data: newData});
     },
     save: function() {
@@ -78,7 +93,10 @@ $(function(){
     },
     render: function(){
       var pipeline = this;
-      var stageNodes = this.state.data.map(function(stage){
+      if (!_.has(this.state.data, 'pipeline.name')){
+        return (<div/>);
+      }
+      var stageNodes = this.state.data.pipeline.stages.map(function(stage){
         return (
           <Stage {...stage} keyx={stage.name} pipeline={pipeline}/>
         );
