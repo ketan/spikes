@@ -69,9 +69,12 @@ $(function(){
 
       this.setState({data: newData});
     },
-    insertStage: function(){
+    insertStage: function() {
       var newData = React.addons.update(this.state.data, {$push: [createNewStage()]});
       this.setState({data: newData});
+    },
+    save: function() {
+      console.log(JSON.stringify(this.state.data, null, 2));
     },
     render: function(){
       var pipeline = this;
@@ -87,7 +90,24 @@ $(function(){
             {stageNodes}
             <AddStage pipeline={pipeline}/>
           </ReactCSSTransitionGroup>
+          <SavePipeline pipeline={this} />
         </div>
+      );
+    }
+  });
+
+  var SavePipeline = React.createClass({
+    save: function(event) {
+      event.preventDefault();
+      this.props.pipeline.save();
+    },
+    render: function() {
+      return (
+        <a
+            href="#"
+            className="save-pipeline"
+            onClick={this.save}
+          >Save Pipeline</a>
       );
     }
   });
@@ -143,7 +163,8 @@ $(function(){
   });
 
   var AddStage = React.createClass({
-    addStage: function(){
+    addStage: function(event){
+      event.preventDefault();
       this.props.pipeline.insertStage();
     },
     render: function(){
@@ -161,6 +182,7 @@ $(function(){
 
   var AddJob = React.createClass({
     addJob: function(event){
+      event.preventDefault();
       this.props.stage.insertJob(this.props.afterJob);
     },
     render: function() {
