@@ -1,0 +1,43 @@
+#content {
+  padding: 10px;
+}
+
+.stage {
+  border: 1px solid #ccc;
+  padding: 10px;
+  display: table-cell;
+}
+
+.job {
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+.tasks input, .new-task, .add-job {
+  display: block;
+  padding: 5px;
+  margin: 10px 0 0 10px;
+}
+
+.tasks h3 {
+  margin-left: 10px;
+}
+
+/* Animation on creating destroying elements */
+.example-enter {
+  opacity: 0.01;
+}
+
+.example-enter.example-enter-active {
+  opacity: 1;
+  transition: opacity .1s ease-in;
+}
+
+.example-leave {
+  opacity: 1;
+}
+
+.example-leave.example-leave-active {
+  opacity: 0.01;
+  transition: opacity .5s ease-in;
+}

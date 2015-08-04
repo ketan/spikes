@@ -1,0 +1,36 @@
+[
+  {
+    "name": "BuildLinux",
+    "jobs": [
+      {
+        "name": "build",
+        "tasks": [
+          "mvn build"
+        ]
+      },
+      {
+        "name": "test",
+        "tasks": [
+          "mvn test"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "BuildWindows",
+    "jobs": [
+      {
+        "name": "build",
+        "tasks": [
+          "mvn build"
+        ]
+      },
+      {
+        "name": "test",
+        "tasks": [
+          "mvn test"
+        ]
+      }
+    ]
+  }
+]
