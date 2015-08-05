@@ -1,0 +1,30 @@
+[
+    {
+        "name": "Build",
+        "jobs": [
+            {
+                "name":"build",
+                "tasks": [
+                    "mvn build"
+                ]
+            },
+            {
+                "name": "test",
+                "tasks": [
+                    "mvn test"
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Deploy",
+        "jobs": [
+            {
+                "name": "package",
+                "tasks": [
+                    "mvn package"
+                ]
+            }
+        ]
+    }
+]

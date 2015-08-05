@@ -1,34 +1,3 @@
-var data = [
-    {
-        "name": "Build",
-        "jobs": [
-            {
-                "name":"build",
-                "tasks": [
-                    "mvn build"
-                ]
-            },
-            {
-                "name": "test",
-                "tasks": [
-                    "mvn test"
-                ]
-            }
-        ]
-    },
-    {
-        "name": "Deploy",
-        "jobs": [
-            {
-                "name": "package",
-                "tasks": [
-                    "mvn package"
-                ]
-            }
-        ]
-    }
-]
-
 var go = {config: {}};
 var edit = go.config.edit = {
     stage: {},
@@ -37,7 +6,7 @@ var edit = go.config.edit = {
     control: {}
 };
 
-edit.Pipelines = Array;
+edit.Stages = Array;
 
 edit.Stage = function(name, jobs) {
     this.name = m.prop(name);
@@ -63,19 +32,37 @@ edit.Task = function(command) {
 
 edit.vm = {
     init: function(data){
-        var pipelines = this.pipelines = new edit.Pipelines();
+        var stages = this.stages = new edit.Stages();
         data.map(function(stage){
-            pipelines.push(new edit.Stage(stage.name, stage.jobs.map(function(job){
+            stages.push(new edit.Stage(stage.name, stage.jobs.map(function(job){
                 return new edit.Job(job.name, job.tasks.map(function(task){
                     return new edit.Task(task);
                 }));
             })));
         });
+    },
+    save: function(){
+	var pipeline = edit.vm.stages.map(function(stage){
+	    return {
+		stage : stage.name(), 
+		jobs: stage.jobs().map(function(job){
+		    return {
+			name : job.name(), 
+			tasks : job.tasks().map(function(task){
+			    return task.command();
+			})
+		    }
+		})
+	    };
+	});
+	console.log(JSON.stringify(pipeline));
     }
 };
 
 edit.controller = function(){
-    go.config.edit.vm.init(data);
+    m.request({method: "GET", url: "/stages.json"}).then(function(data){
+	go.config.edit.vm.init(data);
+    });
 };
 
 edit.control.binds =  function(prop) {
@@ -108,7 +95,9 @@ edit.component.stage = function(stage){
 }
 
 edit.view = function(){
-    return m("div.stages", edit.vm.pipelines.map(edit.component.stage));
+    return m("div.stages", 
+	     m("h3", m("button", {onclick: edit.vm.save}, "Save")),
+	     edit.vm.stages.map(edit.component.stage));
 }
 
-m.mount(document.getElementById('pipeline'), {controller: edit.controller, view: edit.view});
+m.mount(document.getElementById('pipeline'), edit);
