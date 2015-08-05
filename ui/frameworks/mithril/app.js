@@ -47,6 +47,10 @@ edit.Stage = function(name, jobs) {
 edit.Job = function(name, tasks){
     this.name = m.prop(name);
     this.tasks = m.prop(tasks);
+    var job = this;
+    this.newTask = function(){
+	job.tasks().push(new edit.Task(""));
+    };
 }
 
 edit.Task = function(command) {
@@ -75,7 +79,9 @@ edit.control.binds =  function(prop) {
 };
 
 edit.component.task = function(task){
-    return m("div.task", m("h3", m("div", "task"), m("input", edit.control.binds(task.command))));
+    return m("div.task", 
+	     m("h3", m("div", "task"), 
+	       m("div", m("input", edit.control.binds(task.command)))));
 };
 
 edit.component.job = function(job){
@@ -83,12 +89,16 @@ edit.component.job = function(job){
              m("h2", m("div", "Job"),
                m("span",
                  m("input", edit.control.binds(job.name))),
-               job.tasks().map(edit.component.task)));
+               job.tasks().map(edit.component.task),
+	       m("div", m("button", { onclick: job.newTask }, "Add Task"))
+	      ));
 };
 
 edit.component.stage = function(stage){
     return m("div.stage",
-             m("h1", m("div", "Stage"), m("input", edit.control.binds(stage.name))),
+             m("h1", 
+	       m("div", "Stage"), 
+	       m("input", edit.control.binds(stage.name))),
              stage.jobs().map(edit.component.job));
     
 }
@@ -97,4 +107,4 @@ edit.view = function(){
     return m("div.stages", edit.vm.pipelines.map(edit.component.stage));
 }
 
-m.render(document.getElementById('pipeline'), edit);
+m.mount(document.getElementById('pipeline'), {controller: edit.controller, view: edit.view});
