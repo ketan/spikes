@@ -42,6 +42,10 @@ edit.Pipelines = Array;
 edit.Stage = function(name, jobs) {
     this.name = m.prop(name);
     this.jobs = m.prop(jobs);
+    var stage = this;
+    this.newJob = function(){
+	stage.jobs().push(new edit.Job("", []));
+    };
 }
 
 edit.Job = function(name, tasks){
@@ -99,8 +103,8 @@ edit.component.stage = function(stage){
              m("h1", 
 	       m("div", "Stage"), 
 	       m("input", edit.control.binds(stage.name))),
-             stage.jobs().map(edit.component.job));
-    
+             stage.jobs().map(edit.component.job),
+	     m("h1", m("button", { onclick: stage.newJob }, "Add Job")));
 }
 
 edit.view = function(){
